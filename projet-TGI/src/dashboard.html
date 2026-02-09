@@ -1,0 +1,110 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Pointage | TGI</title>
+<link rel="stylesheet" href="css/dashboard.css">
+</head>
+
+<body>
+
+<header>
+    <h2>TGI – Système de Pointage</h2>
+    <a href="login.html" class="logout">Déconnexion</a>
+</header>
+
+<div class="container">
+
+    <div class="card">
+        <h3>Informations utilisateur</h3>
+        <p>Prénom : <strong id="prenom"></strong></p>
+        <p>Nom : <strong id="nom"></strong></p>
+        <p>Statut : <strong id="statut"></strong></p>
+    </div>
+
+    <div class="card">
+        <h3>Heure actuelle</h3>
+        <div class="clock" id="heure"></div>
+        <button onclick="pointer()">Pointer</button>
+        <p id="message"></p>
+    </div>
+
+    <div class="card">
+        <h3>Historique de pointage</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Heure</th>
+                    <th>Statut</th>
+                </tr>
+            </thead>
+            <tbody id="historique"></tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+// Récupération infos utilisateur
+const params = new URLSearchParams(window.location.search);
+const prenom = params.get("prenom");
+const nom = params.get("nom");
+const statut = params.get("statut");
+
+document.getElementById("prenom").textContent = prenom;
+document.getElementById("nom").textContent = nom;
+document.getElementById("statut").textContent = statut;
+
+// Horloge temps réel
+function updateClock() {
+    const d = new Date();
+    document.getElementById("heure").textContent =
+        d.toLocaleTimeString();
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// Historique
+let historique = JSON.parse(localStorage.getItem("pointages")) || [];
+
+function afficherHistorique() {
+    const tbody = document.getElementById("historique");
+    tbody.innerHTML = "";
+
+    historique.forEach(p => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${p.date}</td>
+            <td>${p.heure}</td>
+            <td>${p.statut}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+afficherHistorique();
+
+// Pointer
+function pointer() {
+    const now = new Date();
+
+    const pointage = {
+        date: now.toLocaleDateString(),
+        heure: now.toLocaleTimeString(),
+        statut: statut
+    };
+
+    historique.push(pointage);
+    localStorage.setItem("pointages", JSON.stringify(historique));
+
+    afficherHistorique();
+
+    document.getElementById("message").innerHTML =
+        "✅ Pointage enregistré avec succès";
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Système de Paiement</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            display: none;
+        }
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            color: #667eea;
+        }
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💳 Créer un Paiement</h1>
+        <form id="paymentForm">
+            <div class="form-group">
+                <label for="user_id">ID Utilisateur</label>
+                <input type="text" id="user_id" name="user_id" required placeholder="ex: user123">
+            </div>
+            <div class="form-group">
+                <label for="item_name">Produit/Service</label>
+                <input type="text" id="item_name" name="item_name" required placeholder="ex: Premium Subscription">
+            </div>
+            <div class="form-group">
+                <label for="amount">Montant (FCFA)</label>
+                <input type="number" id="amount" name="amount" required min="100" placeholder="ex: 5000">
+            </div>
+            <div class="form-group">
+                <label for="method">Méthode de Paiement</label>
+                <select id="method" name="method" required>
+                    <option value="">-- Sélectionner une méthode --</option>
+                    <option value="wave">Wave</option>
+                    <option value="orange">Orange Money</option>
+                    <option value="paytech">PayTech</option>
+                </select>
+            </div>
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <span>Traitement en cours...</span>
+            </div>
+            <button type="submit">Effectuer le Paiement</button>
+            <div class="message" id="message"></div>
+        </form>
+    </div>
+    <script>
+        const form = document.getElementById('paymentForm');
+        const messageDiv = document.getElementById('message');
+        const loadingDiv = document.getElementById('loading');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            messageDiv.style.display = 'none';
+            loadingDiv.style.display = 'block';
+
+            const formData = {
+                user_id: document.getElementById('user_id').value,
+                item_name: document.getElementById('item_name').value,
+                amount: document.getElementById('amount').value,
+                method: document.getElementById('method').value,
+                success_url: `${window.location.origin}/success.html`,
+                cancel_url: `${window.location.origin}/cancel.html`
+            };
+
+            try {
+                const response = await fetch('http://localhost:5000/create_payment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+                loadingDiv.style.display = 'none';
+
+                if (data.success || data.redirect_url) {
+                    messageDiv.className = 'message success';
+                    messageDiv.textContent = '✓ Paiement créé avec succès! Redirection...';
+                    messageDiv.style.display = 'block';
+                    setTimeout(() => {
+                        window.location.href = data.redirect_url || data.payment_url || '/success.html';
+                    }, 2000);
+                } else {
+                    throw new Error(data.message || 'Erreur lors de la création du paiement');
+                }
+            } catch (error) {
+                loadingDiv.style.display = 'none';
+                messageDiv.className = 'message error';
+                messageDiv.textContent = `✕ Erreur: ${error.message}`;
+                messageDiv.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

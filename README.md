@@ -46,6 +46,7 @@ Votre Massamba et autres
 ## 📄 Licence
 
 MIT License. 
+<<<<<<< HEAD
 
 Backend – Plateforme de gestion des utilisateurs et projets
 
@@ -156,3 +157,5 @@ Les utilisateurs inscrits peuvent déposer leurs projets
 « Le backend est structuré en plusieurs couches.
 Les routes reçoivent les requêtes, les contrôleurs traitent la logique, les modèles communiquent avec la base de données et l’authentification sécurise les accès.
 Cette organisation rend le projet clair, sécurisé et facile à maintenir. »
+=======
+>>>>>>> a17c433 (Initialisation du projet complet (Front + Back + DB))

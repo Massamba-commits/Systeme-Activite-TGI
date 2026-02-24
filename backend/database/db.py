@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # On importe la bibliothèque qui permet à Python de communiquer avec MySQL
 import mysql.connector
 
@@ -31,3 +32,32 @@ for users in cursor.fetchall():
     
     # Affiche chaque ligne de la table chambre
     print(users)
+=======
+import mysql.connector
+
+class Database:
+    """Wrapper simple pour la connexion MySQL.
+
+    Utilise par les modeles pour obtenir un objet connect().
+    """
+
+    def __init__(self):
+        self.config = {
+            "host": "localhost",
+            "user": "root",
+            "password": "",
+            # Conserver le nom de base tel qu'actuel (orthographe exacte)
+            "database": "tgi_authetification",
+        }
+
+    def connect(self):
+        return mysql.connector.connect(**self.config)
+
+
+# Pour debug rapide, on peut executer une petite requete si le module est lance
+if __name__ == "__main__":
+    db = Database()
+    conn = db.connect()
+    print("connexion r�ussie", conn)
+    conn.close()
+>>>>>>> a17c433 (Initialisation du projet complet (Front + Back + DB))

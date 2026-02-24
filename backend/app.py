@@ -1,20 +1,16 @@
-<<<<<<< HEAD
 from flask import Flask
 from routes.user_routers import user_routes
 from routes.transaction_routers import transaction_routes
-=======
 from flask import Flask, request, jsonify
->>>>>>> a17c433 (Initialisation du projet complet (Front + Back + DB))
 
 app = Flask(__name__)
 app.secret_key = "secret123"
 
-<<<<<<< HEAD
 app.register_blueprint(user_routes, url_prefix="/api")
 app.register_blueprint(transaction_routes, url_prefix="/api")
 
 app.run(debug=True)
-=======
+
 # -------------------------------
 # Routes Utilisateurs (API)
 # -------------------------------
@@ -49,4 +45,3 @@ def list_transactions():
 if __name__ == "__main__":
     # host="0.0.0.0" permet d'accéder depuis le réseau local
     app.run(debug=True, host="0.0.0.0", port=5000)
->>>>>>> a17c433 (Initialisation du projet complet (Front + Back + DB))
